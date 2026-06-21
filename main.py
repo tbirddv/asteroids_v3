@@ -34,7 +34,6 @@ def main():
                 pygame.quit()
                 return
         screen.fill("black")
-        updatable.update(dt)
         for asteroid in asteroids:
             if player.collides_with(asteroid):
                 log_event("player_hit")
@@ -47,9 +46,9 @@ def main():
                     asteroid.split()
         for i in range(len(asteroids)):
             for j in range(i + 1, len(asteroids)):
-                if asteroids.sprites()[j].age != 0.0:
-                    if asteroids.sprites()[i].collides_with(asteroids.sprites()[j]):
-                        asteroids.sprites()[i].bounce(asteroids.sprites()[j])
+                if asteroids.sprites()[i].collides_with(asteroids.sprites()[j]):
+                    asteroids.sprites()[i].bounce(asteroids.sprites()[j])
+        updatable.update(dt)
         for sprite in drawable:
             sprite.draw(screen)
         pygame.display.flip()

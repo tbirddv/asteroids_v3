@@ -7,15 +7,13 @@ import random
 class Asteroid(CircleShape):
     def __init__(self, x: float, y: float, radius: float) -> None:
         super().__init__(x, y, radius)
-        self.age = 0.0
 
     def draw(self, screen: pygame.Surface) -> None:
         pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH)
 
     def update(self, dt: float) -> None:
         self.position += self.velocity * dt
-        if self.age < 1.0:
-            self.age += dt
+        self.bounced = False
 
     def split(self) -> None:
         self.kill()
@@ -32,11 +30,18 @@ class Asteroid(CircleShape):
         Asteroid(new_position_2.x, new_position_2.y, new_radius).velocity = new_velocity_2
 
     def bounce(self, other: "Asteroid") -> None:
-        if self.radius == other.radius:
-             collision_normal = (other.position - self.position).normalize()
-        else:
-            collision_normal = (other.position - self.position).normalize() * (other.radius / self.radius)
-        new_self_velocity = self.velocity.reflect(collision_normal)
-        new_other_velocity = other.velocity.reflect(-collision_normal)
-        self.velocity = new_self_velocity
-        other.velocity = new_other_velocity
+        relative_position = other.position - self.position
+        distance = relative_position.length()
+        
+        if distance == 0:
+            return
+
+        collision_normal = relative_position.normalize()
+        
+        overlap = self.radius + other.radius - distance
+        if overlap > 0:
+            self.position -= collision_normal * (overlap / 2 * 1.1)
+            other.position += collision_normal * (overlap / 2 * 1.1)
+
+        self.velocity, other.velocity = other.velocity, self.velocity
+
